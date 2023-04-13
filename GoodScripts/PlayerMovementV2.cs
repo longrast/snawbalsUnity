@@ -1,0 +1,59 @@
+using UnityEngine;
+
+public class PlayerMovementV2 : MonoBehaviour
+{
+    public float speed;
+    public float rotationSpeed;
+    public float jumpSpeed;
+
+    public CharacterController characterController;
+    public bool ground;
+    private float ySpeed;
+    private float originalStepOffset;
+
+    void Start()
+    {
+        characterController = GetComponent<CharacterController>();
+        originalStepOffset = characterController.stepOffset;
+    }
+
+    void Update()
+    {
+        ground = characterController.isGrounded;
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+
+        Vector3 movementDirection = transform.right * horizontalInput + transform.forward * verticalInput;
+        float magnitude = Mathf.Clamp01(movementDirection.magnitude) * speed;
+        movementDirection.Normalize();
+
+        ySpeed += Physics.gravity.y * Time.deltaTime;
+
+        if (characterController.isGrounded)
+        {
+            characterController.stepOffset = originalStepOffset;
+            ySpeed = -1f;
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                ySpeed = jumpSpeed;
+            }
+        }
+        else
+        {
+            characterController.stepOffset = 0;
+        }
+
+        Vector3 velocity = movementDirection * magnitude;
+        velocity.y = ySpeed;
+
+        characterController.Move(velocity * Time.deltaTime);
+
+        if (movementDirection != Vector3.zero)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
+
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+        }
+    }
+}
