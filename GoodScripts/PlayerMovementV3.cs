@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerMovementV3 : MonoBehaviour
+public class PlayerMovementV3 : NetworkBehaviour
 {
     public float speed;
     public float rotationSpeed;
@@ -51,6 +52,7 @@ public class PlayerMovementV3 : MonoBehaviour
 */
     void Update()
     {
+        if (!IsOwner) return;
         ground = characterController.isGrounded;
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
